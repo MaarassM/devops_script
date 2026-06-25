@@ -31,6 +31,32 @@ podman run -d --name drupal --network drupal-net -p 8080:80 \
   docker.io/library/drupal:latest
 ```
 
+```bash
+podman rm -f db app
+
+podman run -d --network ws --name db \
+  -e MYSQL_ROOT_PASSWORD=rootpw \
+  -e MYSQL_DATABASE=wordpress \
+  -e MYSQL_USER=wp_user \
+  -e MYSQL_PASSWORD=wp_pass \
+  docker.io/library/mysql
+
+podman run -d --network ws --name app -p 8080:80 \
+  -e WORDPRESS_DB_HOST=db \
+  -e WORDPRESS_DB_NAME=wordpress \
+  -e WORDPRESS_DB_USER=wp_user \
+  -e WORDPRESS_DB_PASSWORD=wp_pass \
+  docker.io/library/wordpress
+
+
+
+podman ps                                  # db i app oba Up, app: 0.0.0.0:8080->80/tcp
+podman exec app getent hosts db            # ime "db" -> IP (DNS radi)
+
+```
+
+
+
 Završi Drupal instalaciju na `http://localhost:8080`. Kod koraka baze upiši:
 - Database type: **PostgreSQL**, Name: `drupal`, User: `drupal_user`, Password: `my-secret-pw`
 - Advanced → Host: **`postgres`** (ime kontejnera, NE localhost)
